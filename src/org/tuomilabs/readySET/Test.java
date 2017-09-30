@@ -32,9 +32,9 @@ import java.util.Random;
 
 public class Test {
     // Polynomial fitting tolerances
-    public static void generateBlackWhiteImage() throws IOException {
+    public static void generateBlackWhiteImage(String path) throws IOException {
         // load and convert the image into a usable format
-        BufferedImage image = UtilImageIO.loadImage(UtilIO.pathExample("C:\\development\\readySET\\photos\\test.jpg"));
+        BufferedImage image = UtilImageIO.loadImage(UtilIO.pathExample(path));
 
         // convert into a usable format
         GrayF32 input = ConvertBufferedImage.convertFromSingle(image, null, GrayF32.class);

@@ -1,15 +1,11 @@
 package org.tuomilabs.readySET;
 
 import boofcv.alg.distort.RemovePerspectiveDistortion;
-import boofcv.alg.feature.detect.edge.CannyEdge;
-import boofcv.alg.feature.detect.edge.EdgeContour;
-import boofcv.alg.feature.detect.edge.EdgeSegment;
 import boofcv.alg.filter.binary.BinaryImageOps;
 import boofcv.alg.filter.binary.Contour;
 import boofcv.alg.filter.binary.ThresholdImageOps;
 import boofcv.alg.misc.ImageStatistics;
 import boofcv.alg.shapes.ShapeFittingOps;
-import boofcv.factory.feature.detect.edge.FactoryEdgeDetectors;
 import boofcv.gui.ListDisplayPanel;
 import boofcv.gui.feature.VisualizeShapes;
 import boofcv.gui.image.ShowImages;
@@ -27,15 +23,15 @@ import georegression.struct.point.Point2D_I32;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Random;
 
 public class ActualMain {
+    static int CARD_MIN_DIAGONAL_SIZE_PIXELS = 500;
+    static int FILENAME_START_INTEGER = 76;
+
     // Polynomial fitting tolerances
     static double splitFraction = 0.05;
     static double minimumSideFraction = 0.01;
@@ -45,7 +41,7 @@ public class ActualMain {
     /**
      * Fits polygons to found contours around binary blobs.
      */
-    public static void fitBinaryImage(GrayF32 input) throws IOException {
+    private static void fitBinaryImage(GrayF32 input, String path) throws IOException {
 
         GrayU8 binary = new GrayU8(input.width, input.height);
         BufferedImage polygon = new BufferedImage(input.width, input.height, BufferedImage.TYPE_INT_RGB);
@@ -67,7 +63,7 @@ public class ActualMain {
         Graphics2D g2 = polygon.createGraphics();
         g2.setStroke(new BasicStroke(2));
 
-        int count = 0;
+        int count = FILENAME_START_INTEGER;
         for (Contour c : contours) {
             // Fit the polygon to the found external contour.  Note loop = true
             List<PointIndex_I32> vertexes = ShapeFittingOps.fitPolygon(c.external, true,
@@ -77,9 +73,9 @@ public class ActualMain {
             int longDiagonal = getLongDiagonal(vertexes);
             //System.out.println(longDiagonal);
 
-            if (longDiagonal > 800) {
+            if (longDiagonal > CARD_MIN_DIAGONAL_SIZE_PIXELS) {
                 VisualizeShapes.drawPolygon(vertexes, true, g2);
-                extractPolygon(vertexes, count++);
+                extractPolygon(vertexes, count++, path);
             }
 
             // handle internal contours now
@@ -93,10 +89,10 @@ public class ActualMain {
         gui.addImage(polygon, "Binary Blob Contours");
     }
 
-    private static void extractPolygon(List<PointIndex_I32> external, int i) throws IOException {
+    private static void extractPolygon(List<PointIndex_I32> external, int i, String path) throws IOException {
         int[] imageBounds = getBounds(external);
 
-        BufferedImage in = ImageIO.read(new File("C:\\development\\readySET\\photos\\test.jpg"));
+        BufferedImage in = ImageIO.read(new File(path));
         Polygon inputPolygon = convertToPolygon(external);
         Rectangle bounds = inputPolygon.getBounds(); // Polygon inputPolygon
         BufferedImage extractor = new BufferedImage(bounds.width, bounds.height, BufferedImage.TYPE_INT_ARGB);
@@ -126,8 +122,8 @@ public class ActualMain {
         g2d.dispose();
 
 
-        File extImageFile111 = new File("outtest_" + i + ".png");
-        ImageIO.write(copy, "png", extImageFile111);
+//        File extImageFile111 = new File("outtest_" + i + ".png");
+//        ImageIO.write(copy, "png", extImageFile111);
 
 
         Planar<GrayF32> input = ConvertBufferedImage.convertFromPlanar(copy, null, true, GrayF32.class);
@@ -183,7 +179,7 @@ public class ActualMain {
 
         BufferedImage flat = ConvertBufferedImage.convertTo_F32(output, null, true);
 
-        File extImageFile = new File("out_" + i + ".png");
+        File extImageFile = new File("C:\\development\\readySET\\deck\\out_" + i + ".png");
         ImageIO.write(flat, "png", extImageFile);
     }
 
@@ -235,7 +231,7 @@ public class ActualMain {
         return new int[]{minX, minY, maxX, maxY};
     }
 
-    public static void main(String args[]) throws IOException {
+    public static void runExtraction(String path) throws IOException {
         // load and convert the image into a usable format
         BufferedImage image = UtilImageIO.loadImage(UtilIO.pathExample("C:\\development\\readySET\\saved.png"));
         GrayF32 input = ConvertBufferedImage.convertFromSingle(image, null, GrayF32.class);
@@ -244,7 +240,7 @@ public class ActualMain {
 
 //        fitCannyEdges(input);
 //        fitCannyBinary(input);
-        fitBinaryImage(input);
+        fitBinaryImage(input, path);
 
         ShowImages.showWindow(gui, "Polygon from Contour", true);
     }
