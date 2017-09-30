@@ -30,7 +30,7 @@ import java.util.List;
 
 public class ActualMain {
     static int CARD_MIN_DIAGONAL_SIZE_PIXELS = 500;
-    static int FILENAME_START_INTEGER = 76;
+    static int FILENAME_START_INTEGER = 999;
 
     // Polynomial fitting tolerances
     static double splitFraction = 0.05;

@@ -38,14 +38,14 @@ public class Test {
 
         // convert into a usable format
         GrayF32 input = ConvertBufferedImage.convertFromSingle(image, null, GrayF32.class);
-        GrayU8 binary = new GrayU8(input.width,input.height);
-        GrayS32 label = new GrayS32(input.width,input.height);
+        GrayU8 binary = new GrayU8(input.width, input.height);
+        GrayS32 label = new GrayS32(input.width, input.height);
 
         // Select a global threshold using Otsu's method.
         double threshold = GThresholdImageOps.computeOtsu(input, 0, 255);
 
         // Apply the threshold to create a binary image
-        ThresholdImageOps.threshold(input,binary,(float)threshold,true);
+        ThresholdImageOps.threshold(input, binary, (float) threshold, true);
 
         // remove small blobs through erosion and dilation
         // The null in the input indicates that it should internally declare the work image it needs
