@@ -81,6 +81,10 @@ public class XORShitfuck {
             for (int c = 0; c < 3; c++) {
                 for (int n = 0; n < 3; n++) {
                     for (int f = 0; f < 3; f++) {
+                        if (s == 0 && c == 1 && n == 0 && f == 0) {
+                            continue;
+                        }
+
                         String otherPath = "C:\\development\\readySET\\bwdeck\\" + s + "" + c + "" + n + "" + f + ".png";
                         System.out.print(otherPath);
                         BufferedImage otherImage = ImageIO.read(new File(otherPath));
