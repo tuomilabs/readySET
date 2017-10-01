@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.util.List;
 
 public class ActualMain {
+    static String FUCKING_SHIT_BITCHES_ASS_HOE = "";
+
     static int CARD_MIN_DIAGONAL_SIZE_PIXELS = 500;
     static int FILENAME_START_INTEGER = 999;
 
@@ -131,6 +133,17 @@ public class ActualMain {
         RemovePerspectiveDistortion<Planar<GrayF32>> removePerspective =
                 new RemovePerspectiveDistortion<>(825, 550, ImageType.pl(3, GrayF32.class));
 
+
+        // TODO COMMENT THE NEXT TWO LINES YOU SICK ASS BITCH
+        File extImageFile = new File("C:\\development\\readySET\\bwdeck\\" + FUCKING_SHIT_BITCHES_ASS_HOE + ".png");
+        ImageIO.write(copy, "png", extImageFile);
+
+
+
+        // TODO UNCOMMENT THE NEXT BLOCK YOU SICK ASS BITCH
+
+
+        /*
         System.out.println(external);
 
         assert external.size() == 4;
@@ -179,8 +192,9 @@ public class ActualMain {
 
         BufferedImage flat = ConvertBufferedImage.convertTo_F32(output, null, true);
 
-        File extImageFile = new File("C:\\development\\readySET\\deck\\out_" + i + ".png");
+        File extImageFile = new File("C:\\development\\readySET\\bwdeck\\" + FUCKING_SHIT_BITCHES_ASS_HOE + ".png");
         ImageIO.write(flat, "png", extImageFile);
+        */
     }
 
     private static Polygon convertToPolygon(List<PointIndex_I32> external) {
@@ -240,7 +254,8 @@ public class ActualMain {
 
 //        fitCannyEdges(input);
 //        fitCannyBinary(input);
-        fitBinaryImage(input, path);
+//        fitBinaryImage(input, path); // THIS IS THE REAL LINE. UNCOMMENT THIS!!!
+        fitBinaryImage(input, "C:\\development\\readySET\\saved.png");
 
         ShowImages.showWindow(gui, "Polygon from Contour", true);
     }
