@@ -26,11 +26,16 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Scanner;
 
 public class ActualMain {
     static int CARD_MIN_DIAGONAL_SIZE_PIXELS = 500;
-    static int FILENAME_START_INTEGER = 999;
+    static int FILENAME_START_INTEGER = 0;
 
     // Polynomial fitting tolerances
     static double splitFraction = 0.05;
@@ -41,7 +46,8 @@ public class ActualMain {
     /**
      * Fits polygons to found contours around binary blobs.
      */
-    private static void fitBinaryImage(GrayF32 input, String path) throws IOException {
+    private static List<Card> fitBinaryImage(GrayF32 input, String path) throws IOException {
+        List<Card> cards = new ArrayList<>();
 
         GrayU8 binary = new GrayU8(input.width, input.height);
         BufferedImage polygon = new BufferedImage(input.width, input.height, BufferedImage.TYPE_INT_RGB);
@@ -80,19 +86,45 @@ public class ActualMain {
 
             // handle internal contours now
             g2.setColor(Color.BLUE);
+            int number = 0;
             for (List<Point2D_I32> internal : c.internal) {
+                number++;
                 vertexes = ShapeFittingOps.fitPolygon(internal, true, splitFraction, minimumSideFraction, 100);
                 VisualizeShapes.drawPolygon(vertexes, true, g2);
+            }
+
+            if (number != 0) {
+                System.out.println("Number: " + number);
+
+                int shape = 0;
+//                Scanner reader = new Scanner(System.in);  // Reading from System.in
+//                System.out.println("Can't read shape. Which shape is it?");
+//                shape = reader.nextInt(); // Scans the next token of the input as an int.
+                shape = 2;
+
+                int color = 0;
+
+                int fill = 0;
+//                System.out.println("Can't read fill. Which fill is it?");
+//                shape = reader.nextInt(); // Scans the next token of the input as an int.
+
+
+
+                cards.add(new Card(shape, color, number - 1, fill));
             }
         }
 
         gui.addImage(polygon, "Binary Blob Contours");
+
+        return cards;
     }
 
     private static void extractPolygon(List<PointIndex_I32> external, int i, String path) throws IOException {
         int[] imageBounds = getBounds(external);
 
-        BufferedImage in = ImageIO.read(new File(path));
+        URL url = new URL("http://10.61.49.93:8080/shot.jpg");
+//        BufferedImage in = ImageIO.read(new File(path));
+        BufferedImage in = ImageIO.read(url);
         Polygon inputPolygon = convertToPolygon(external);
         Rectangle bounds = inputPolygon.getBounds(); // Polygon inputPolygon
         BufferedImage extractor = new BufferedImage(bounds.width, bounds.height, BufferedImage.TYPE_INT_ARGB);
@@ -130,8 +162,6 @@ public class ActualMain {
 
         RemovePerspectiveDistortion<Planar<GrayF32>> removePerspective =
                 new RemovePerspectiveDistortion<>(825, 550, ImageType.pl(3, GrayF32.class));
-
-
 
 
         System.out.println(external);
@@ -182,7 +212,7 @@ public class ActualMain {
 
         BufferedImage flat = ConvertBufferedImage.convertTo_F32(output, null, true);
 
-        File extImageFile = new File("C:\\development\\readySET\\deck\\out_" + i + ".png");
+        File extImageFile = new File("C:\\development\\readySET\\" + i + ".png");
         ImageIO.write(flat, "png", extImageFile);
     }
 
@@ -209,7 +239,7 @@ public class ActualMain {
 
     private static int[] getBounds(List<PointIndex_I32> vertices) {
         int minX = 1000000;
-        int minY = 1000000; // Fuck people with higher resolution
+        int minY = 1000000; // Hi people with higher resolution
         int maxX = 0;
         int maxY = 0;
 
@@ -243,8 +273,129 @@ public class ActualMain {
 
 //        fitCannyEdges(input);
 //        fitCannyBinary(input);
-        fitBinaryImage(input, path);
+        List<Card> Cards = fitBinaryImage(input, path);
 
         ShowImages.showWindow(gui, "Polygon from Contour", true);
+
+//        for (int a = 0; a < 3; a++) {
+//            for (int b = 0; b < 3; b++) {
+//                for (int c = 0; c < 3; c++) {
+//                    for (int d = 0; d < 3; d++) {
+//
+//                    }
+//                }
+//            }
+//        }
+
+        for (int i = 0; i < Cards.size(); i++) {
+            File file = new File(i + ".png");
+            int[] colorinfo = new int[4];
+            colorinfo = colorFinder(file);
+
+
+            if ((colorinfo[0] > 140)) {
+
+                Cards.get(i).setColor(0);
+
+            } else if ((colorinfo[0] < 140) && (colorinfo[1] > 112)) {
+                Cards.get(i).setColor(1);
+
+            } else if ((colorinfo[0] < 140) && (colorinfo[1] <= 112)) {
+                Cards.get(i).setColor(2);
+
+            }
+
+            if (Cards.get(i).getFill() == 3)
+                if ((colorinfo[3] / (Cards.get(i).getNumber() + 1)) > 18000) {
+                    Cards.get(i).setFill(2);
+
+                } else {
+                    Cards.get(i).setFill(0);
+                }
+
+        }
+
+        List<int[]> sets = SetFinder(Cards);
+
+        System.out.println(sets.size() + " sets:");
+        System.out.println();
+
+
+		for(int i = 0; i < sets.size();i++){
+
+			System.out.println(i+1 +":");
+			System.out.println(sets.get(i)[0] +", "  +sets.get(i)[1] +", " +sets.get(i)[2]);
+			System.out.println();
+		}
+        int[] mySet = sets.get(0);
+        try {
+            PrintWriter writer = new PrintWriter("index.html", "UTF-8");
+            writer.println("<!DOCTYPE html><html><head><meta http-equiv='refresh' content='10' /><title>another stupid</title></head>");
+            writer.print("<body onload='window.navigator.vibrate([");
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < mySet[i]; j++) {
+                    writer.print("200,75,");
+                }
+                writer.print("0, 325,");
+            }
+            writer.println("]);'>");
+            writer.println("</body></html>");
+            writer.close();
+        } catch (IOException e) {
+            System.out.print("oops");
+        }
     }
+
+    public static int[] colorFinder(File file) throws IOException {
+
+        BufferedImage image = ImageIO.read(file);
+        int avred = 0;
+        int avgreen = 0;
+        int avblue = 0;
+        int pixelnum = 1;
+
+        for (int x = 0; x < image.getHeight(); x++) {
+            for (int y = 0; y < image.getHeight(); y++) {
+                int clr = image.getRGB(x, y);
+                if (((clr & 0x00ff0000) >> 16) + ((clr & 0x0000ff00) >> 8) + (clr & 0x000000ff) < 450) {
+                    avred += (clr & 0x00ff0000) >> 16;
+                    avgreen += (clr & 0x0000ff00) >> 8;
+                    avblue += clr & 0x000000ff;
+                    pixelnum++;
+                }
+            }
+        }
+        avred = avred / pixelnum;
+        avgreen = avgreen / pixelnum;
+        avblue = avblue / pixelnum;
+
+        int[] output = {avred, avgreen, avblue, pixelnum};
+        return output;
+    }
+
+    public static List<int[]> SetFinder(List<Card> Cards) {
+
+        Card placehold = new Card();
+        List<int[]> sets = new ArrayList<int[]>();
+
+        for (int x = 0; x < Cards.size() - 2; x++) {
+            for (int y = x + 1; y < Cards.size() - 1; y++) {
+                placehold.setCard(Cards.get(x).findMissing(Cards.get(y)));
+                for (int z = y + 1; z < Cards.size(); z++) {
+
+                    if (Cards.get(z).compare(placehold) == true) {
+                        int[] set = new int[3];
+                        set[0] = x;
+                        set[1] = y;
+                        set[2] = z;
+                        sets.add(set);
+                    }
+
+                }
+            }
+        }
+
+        return sets;
+    }
+
 }

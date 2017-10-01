@@ -45,7 +45,7 @@ public class Converter {
         List<EdgeContour> edgeContours = canny.getContours();
         // The 'edgeContours' is a tree graph that can be difficult to process.  An alternative is to extract
         // the contours from the binary image, which will produce a single loop for each connected cluster of pixels.
-        // Note that you are only interested in external contours.
+        // Note that you are only interested in verticesnal contours.
         List<Contour> contours = BinaryImageOps.contour(edgeImage, ConnectRule.EIGHT, null);
 
         // display the results

@@ -27,6 +27,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 import java.util.Random;
 
@@ -34,7 +35,10 @@ public class Test {
     // Polynomial fitting tolerances
     public static void generateBlackWhiteImage(String path) throws IOException {
         // load and convert the image into a usable format
-        BufferedImage image = UtilImageIO.loadImage(UtilIO.pathExample(path));
+
+        URL url = new URL("http://10.61.49.93:8080/shot.jpg");
+//        BufferedImage in = ImageIO.read(new File(path));
+        BufferedImage image = ImageIO.read(url);
 
         // convert into a usable format
         GrayF32 input = ConvertBufferedImage.convertFromSingle(image, null, GrayF32.class);
@@ -57,14 +61,14 @@ public class Test {
         List<Contour> contours = BinaryImageOps.contour(filtered, ConnectRule.EIGHT, label);
 
         // colors of contours
-        int colorExternal = 0xFFFFFF;
+        int colorverticesnal = 0xFFFFFF;
         int colorInternal = 0xFF2020;
 
         // display the results
         BufferedImage visualBinary = VisualizeBinaryData.renderBinary(binary, false, null);
 //        BufferedImage visualFiltered = VisualizeBinaryData.renderBinary(filtered, false, null);
 //        BufferedImage visualLabel = VisualizeBinaryData.renderLabeledBG(label, contours.size(), null);
-//        BufferedImage visualContour = VisualizeBinaryData.renderContours(contours, colorExternal, colorInternal,
+//        BufferedImage visualContour = VisualizeBinaryData.renderContours(contours, colorverticesnal, colorInternal,
 //                input.width, input.height, null);
 
 //        ListDisplayPanel panel = new ListDisplayPanel();
