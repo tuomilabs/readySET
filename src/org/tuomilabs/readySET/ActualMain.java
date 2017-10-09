@@ -122,9 +122,9 @@ public class ActualMain {
     private static void extractPolygon(List<PointIndex_I32> external, int i, String path) throws IOException {
         int[] imageBounds = getBounds(external);
 
-        URL url = new URL("http://10.61.49.93:8080/shot.jpg");
-//        BufferedImage in = ImageIO.read(new File(path));
-        BufferedImage in = ImageIO.read(url);
+//        URL url = new URL("http://10.61.49.93:8080/shot.jpg");
+        BufferedImage in = ImageIO.read(new File(path));
+//        BufferedImage in = ImageIO.read(url);
         Polygon inputPolygon = convertToPolygon(external);
         Rectangle bounds = inputPolygon.getBounds(); // Polygon inputPolygon
         BufferedImage extractor = new BufferedImage(bounds.width, bounds.height, BufferedImage.TYPE_INT_ARGB);
@@ -264,12 +264,12 @@ public class ActualMain {
         return new int[]{minX, minY, maxX, maxY};
     }
 
-    public static void runExtraction(String path) throws IOException {
+    public static void runExtraction(BufferedImage bwImage, String path) throws IOException {
         // load and convert the image into a usable format
-        BufferedImage image = UtilImageIO.loadImage(UtilIO.pathExample("C:\\development\\readySET\\saved.png"));
-        GrayF32 input = ConvertBufferedImage.convertFromSingle(image, null, GrayF32.class);
+//        BufferedImage image = UtilImageIO.loadImage(UtilIO.pathExample("C:\\development\\readySET\\saved.png"));
+        GrayF32 input = ConvertBufferedImage.convertFromSingle(bwImage, null, GrayF32.class);
 
-        gui.addImage(image, "Original");
+        gui.addImage(bwImage, "Original");
 
 //        fitCannyEdges(input);
 //        fitCannyBinary(input);
